@@ -1,0 +1,6 @@
+1681405372753	Rename type 'CourseSchedule'
+1681405389455	Rename type 'CourseInstructor'
+1681405630061	Rename type 'Schedule'
+1681627218679	Rename field '_persons'
+1681627654846	Rename method 'addNewPerson'
+1681627819381	Rename field '_personsGroupCourse'

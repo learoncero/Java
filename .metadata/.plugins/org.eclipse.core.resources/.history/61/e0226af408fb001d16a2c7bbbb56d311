@@ -1,0 +1,394 @@
+package at.fhv.itb.lro3572;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+public class GameController implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private static GameController _instance;
+	private LinkedList<Field> _fields;
+	private LinkedList<Player> _players;
+	private boolean _running;
+	
+	private GameController() {
+		_fields = new LinkedList<>();
+		_players = new LinkedList<>();
+		_running = false;
+	}
+	
+//	methods
+	public static GameController instance() {
+		if (_instance == null) {
+			_instance = new GameController();
+			_instance.defineMap();
+		}
+		return _instance;
+	}
+	
+	private void defineMap() {
+		// create fields, doors, walls and define surroundings
+		Field inn = new Field("Gasthaus", "Ein etwas heruntergekommenes Gasthaus. Hat \nseine besten Tage definitiv hinter sich.");
+		Field entrance = new Field("Eingangshalle", "Eine schmale Eingangshalle. Man hört gedämpfte \nRadiomusik aus dem Gasthaus.");
+		Field marketsquare = StartField.instance("Marktplatz", "Ein Marktplatz mit einem großen Brunnen in der Mitte.");
+		Field shed = new Field("Schuppen", "Ein verlassener Schuppen.");
+		Field churchForecourt = new Field("Kirchenvorplatz", "Ein kleiner Park mit einer Bank zum Verweilen.");
+		Field church = new Field("Church", "Eine pompöse Kirche mit interessanten Wandmalereien");
+
+		Door doorChurch = new Door("Kirchentür", "Eingangstür Kirche", churchForecourt, church, true);
+		Door doorEntrance = new Door("Gasthaustür", "Eingangstür Gasthaus", marketsquare, entrance, false);
+		Door doorInn = new Door("Gasthaustür", "Verbindungstür Gasthaus/Eingang", inn, entrance, false);
+		
+		Wall wallShed1 = new Wall(shed);
+		Wall wallShed2 = new Wall(shed);
+		Wall wallShed3 = new Wall(shed);
+		
+		Wall wallChurch1 = new Wall(church);
+		Wall wallChurch2 = new Wall(church);
+		Wall wallChurch3 = new Wall(church);
+		
+		Wall wallEntrance1 = new Wall(entrance);
+		Wall wallEntrance2 = new Wall(entrance);
+		
+		Wall wallInn1 = new Wall(inn);
+		Wall wallInn2 = new Wall(inn);
+		Wall wallInn3 = new Wall(inn);
+		
+		inn.defineSurrounding(wallInn1, entrance, wallInn2, wallInn3);
+		entrance.defineSurrounding(wallEntrance1, marketsquare, wallEntrance1, inn);
+		marketsquare.defineSurrounding(null, shed, churchForecourt, doorEntrance);
+		shed.defineSurrounding(wallShed1, wallShed2, wallShed3, marketsquare);
+		churchForecourt.defineSurrounding(marketsquare, null, doorChurch, null);
+		church.defineSurrounding(doorChurch, wallChurch1, wallChurch2, wallChurch3);
+		
+		// add Cells to GameController
+		addField(inn);
+		addField(entrance);
+		addField(marketsquare);
+		addField(shed);
+		addField(churchForecourt);
+		addField(church);
+
+		// create items
+		Potion healthPotion = new Potion("Heiltrank", "Damit wirst du groß und stark");
+		Food beer = new Food("Bier", "Köstlich, aber... Trink nicht zu viel davon!");
+		Poison apple = new Poison("Apfel", "Nach außen ein stinknormaler Apfel, aper pass auf: Wurde vergiftet!");
+		Food ravioli = new Food("Konservendose", "Konservendose mit herrlichen Ravioli. Wer liebt es nicht?");
+		Key churchKey = new Key("Kirchenschlüssel", "Öffnet die Kirchentür", doorChurch);
+		
+		// add items on map
+		inn.addItem(beer);
+		inn.addItem(ravioli);
+		churchForecourt.addItem(apple);
+		shed.addItem(churchKey);
+		marketsquare.addItem(healthPotion);
+		
+		// create player
+		Player player2 = new Player("Spieler 2");
+		Player player3 = new Player("Spieler 3");
+		Player player4 = new Player("Spieler 4");
+		
+		// add player on map
+		inn.addPlayer(player2);
+		inn.addPlayer(player3);
+		marketsquare.addPlayer(player4);
+	}
+	
+	public void addField(Field f) {
+		_fields.add(f);
+	}
+	
+	public void removeField(Field f) {
+		_fields.remove(f);
+	}
+	
+	public void addPlayerGC(Player player) {
+		_players.add(player);
+	}
+	
+	public void removePlayerGC(Player player) {
+		_players.remove(player);
+	}
+	
+	public void start() {
+		_running = true;
+	}
+	
+//	puts player on the starting field
+	public void setStartField(Player player) {
+		for(Field field: _fields) {
+			if(field instanceof StartField) {
+				StartField s = (StartField) field;
+				s.addPlayer(player);
+				player.setPosition(s);
+			}
+		}
+	}
+	
+	public void printGameInformation() {
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("                                     MUD                                            ");
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("   Bewegung: Norden [w] | Osten [d] | Süden [s] | Westen [a]                        ");
+		System.out.println("   Aktivität: Inventar [i] | Item aufnehmen [pick]                                  ");
+		System.out.println("   Information: Position [pos] | Spieler [player] | Steuerung [game] | Map [map]    ");
+		System.out.println("   Spiel: Speichern [save] | Beenden [exit]                                                            ");
+		System.out.println("------------------------------------------------------------------------------------");
+	}
+	
+	public void printMap() {
+		for (Field field: _fields) {
+			System.out.println(field.getFieldInformationString());
+			System.out.println("------------------------------------------------------------------------------------");
+		}
+	}
+	
+	public static String getCurrPosString(Player player) {
+		StringBuilder posInformation = new StringBuilder();
+		posInformation.append(player.getPosition().getFieldInformationString());
+		if (player.getPosition().getPlayersOnField().size() > 1) {
+			posInformation.append("\nWeitere Spieler: ");
+			for(Player p: player.getPosition().getPlayersOnField()) {
+				if (!p.getName().equals(player.getName())) {
+					posInformation.append("\n  - " + p.getName());	
+				}
+			}
+		}		
+		else {
+			posInformation.append("\nWeitere Spieler: Keine Seele weit und breit");
+		}
+		if (player.getPosition().getItemsOnField().isEmpty() == false) {
+			posInformation.append("\nGegenstände: ");
+			for(Item item: player.getPosition().getItemsOnField()){
+				posInformation.append("\n  - " + item.getName());		
+			}
+		}
+		else {
+			posInformation.append("\nGegenstände: Keine\n");
+		}
+		return posInformation.toString();
+	}
+	
+	public void printInventoryInformation() {
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("                                   Inventar                                         ");
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("  Item verwenden [use] | Inventar verlassen [b]                                     ");
+		System.out.println("------------------------------------------------------------------------------------");
+	}
+	
+	public String getInventoryString(Player player) {
+		StringBuilder inventory = new StringBuilder();
+		int count = 0;
+		for (Item item: player.getInventory()) {
+			inventory.append("[" + count + "]   " + item.getName() + " | " + item.getDescription() + "\n");
+			count += 1;
+		}
+		inventory.append("------------------------------------------------------------------------------------\n");
+		return inventory.toString();
+	}
+
+	public void accessInventoryMode(Player player) {
+		Scanner scannerInventory = new Scanner(System.in);
+		StringBuilder inputInventory = new StringBuilder();
+		
+		boolean inventoryRunning = true;
+		
+		while (inventoryRunning == true) {
+			inputInventory.delete(0, inputInventory.length());
+			inputInventory.append(scannerInventory.nextLine());
+			switch (inputInventory.toString()) {
+			case "use":
+				System.out.println("Welches Item möchtest du benutzen? Ziffer eingeben!");
+					int index = scannerInventory.nextInt();
+					if (index < player.getInventory().size()) {
+						try {
+							System.out.println(player.getInventory().get(index).use(player));
+							System.out.println("\n" + getInventoryString(player));
+							printInventoryInformation();
+							System.out.println(getInventoryString(player));
+						} catch (PlayerDeadException e) {
+							System.out.println(e.getMessage());
+							inventoryRunning = false;
+							end();
+						}
+					}
+					else {
+						System.out.println("Du hast dieses Item nicht in deinem Inventar!");
+					}
+				break;
+			case "b":
+				inventoryRunning = false;
+				System.out.println(getCurrPosString(player));
+				break;
+			}
+		}
+	}
+	
+	private void accessPickUpMode(Player player) {
+		System.out.println("Welches Item möchtest du aufnehmen?");
+		
+		Scanner scannerPick = new Scanner(System.in);
+		StringBuilder inputPick = new StringBuilder();
+		inputPick.append(scannerPick.nextLine());
+
+		player.pickUpItem(inputPick.toString());
+	}
+	
+	public String endGame(Player player) {
+		player.getPosition().removePlayer(player);
+		this.removePlayerGC(player);
+		return "Das Spiel wurde beendet. Danke fürs Spielen!";
+	}
+	
+	public String playerInformationString(Player player) {
+		StringBuilder playerInformation = new StringBuilder();
+		playerInformation.append("------------------------------------------------------------------------------------\n" + 
+				"Spieler: " + player.getName() + ", Leben: " + player.getHealth() + "\n" +
+				"------------------------------------------------------------------------------------");
+		return playerInformation.toString();
+	}
+	
+	public static void serialize() {
+		
+		GameController g = _instance;
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("D:\\OneDrive - FH Vorarlberg\\Semester2\\Elementare_Algorithmen_ projektorientierte_Programmierung\\Uebungen\\Uebungsblatt8\\GameState.bin"));) {
+			out.writeObject(g);
+			System.out.println("Spiel gespeichert!");
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public static GameController deserialize() {
+		GameController gameController = null;
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("D:\\OneDrive - FH Vorarlberg\\Semester2\\Elementare_Algorithmen_ projektorientierte_Programmierung\\Uebungen\\Uebungsblatt8\\GameState.bin"));) {
+			gameController = (GameController) in.readObject();
+			if (gameController == null) {
+				gameController = GameController.instance();
+			}
+			else {
+				System.out.println("Laden erfolgreich!");
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			System.out.println(e.getMessage());
+		} finally {
+			return gameController;
+		}
+	}
+	
+	public void end() {
+		_running = false;
+	}
+	
+	public void run(Player player) {
+		printGameInformation();
+		printMap();
+		setStartField(player);
+		
+		Scanner scanner = new Scanner(System.in);
+		StringBuilder input = new StringBuilder();
+		
+		while (_running == true) {
+			input.delete(0, input.length());
+			input.append(scanner.nextLine());
+			
+			switch (input.toString()) {
+			case "w":
+				try {
+					System.out.println(player.move(Direction.North));
+				} catch (NeighbourNullException e) {
+					System.out.println(e.getMessage());
+				}
+				break;
+			case "d":
+				try {
+					System.out.println(player.move(Direction.East));
+				} catch (NeighbourNullException e) {
+					System.out.println(e.getMessage());
+				}
+				break;
+			case "s":
+				try {
+					System.out.println(player.move(Direction.South));
+				} catch (NeighbourNullException e) {
+					System.out.println(e.getMessage());
+				}
+				break;
+			case "a":
+				try {
+					System.out.println(player.move(Direction.West));
+				} catch (NeighbourNullException e) {
+					System.out.println(e.getMessage());
+				}
+				break;
+			case "pos":
+				System.out.println(getCurrPosString(player));
+				break;
+			case "i":
+				printInventoryInformation();
+				System.out.println(getInventoryString(player));
+				accessInventoryMode(player);
+				break;
+			case "pick":
+				accessPickUpMode(player);
+				System.out.println(getCurrPosString(player));
+				break;
+			case "player":
+				System.out.println(playerInformationString(player));
+				break;
+			case "game":
+				printGameInformation();
+				break;
+			case "map":
+				printMap();
+				break;
+			case "save":
+				serialize();
+				break;
+			case "exit":
+				System.out.println(endGame(player));
+				end();
+				break;
+			}
+		}
+	}
+	
+	public static void main(String[] args) {
+		GameController gc = GameController.deserialize();
+		Player player1 = new Player("Spieler 1");
+
+		// start game
+		gc.start();
+		gc.run(player1);
+
+		/*
+		gc.setStartField(player1);
+		marketsquare.addPlayer(player1);
+		System.out.println(gc.getCurrPosString(player1)); 
+		System.out.println("------------------------------------------------------------------");
+		player1.pickUpItem("Heiltrank");
+		System.out.println(gc.getInventoryString(player1));
+		System.out.println("------------------------------------------------------------------");
+		try {
+			player1.move(Direction.West);
+		} catch (NeighbourNullException e) {
+			System.out.println(e.getMessage());
+		}
+		System.out.println(gc.getCurrPosString(player1)); 
+		System.out.println("------------------------------------------------------------------");
+		gc.serialize();
+		System.out.println();
+		System.out.println(gc.getCurrPosString(player1));
+		System.out.println("------------------------------------------------------------------");
+		System.out.println(gc.getInventoryString(player1));
+		System.out.println("------------------------------------------------------------------");
+	*/
+	}
+	
+}

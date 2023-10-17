@@ -1,0 +1,89 @@
+package at.fhv.itb.lro3572;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+public class SimpleZip {
+	
+	public static void pack(String extension, String archiveName) {
+		String sourceDirectory = ".";
+		File directory = new File(sourceDirectory);
+		
+		FilenameFilter extensionFilter = new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(extension);
+			}
+		};
+		
+		File[] files = directory.listFiles(extensionFilter);
+		
+		if (files != null) {
+			byte[] buffer = new byte[1024];
+			try(ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(archiveName));) {
+				for (File file: files) {
+					ZipEntry zip = new ZipEntry(file.getName());
+					zos.putNextEntry(zip);
+					try (FileInputStream fis = new FileInputStream(file)) {
+                        int length = 0;
+                        while ((length = fis.read(buffer)) > 0) {
+                            zos.write(buffer, 0, length);
+                        }
+                    }
+                    zos.closeEntry();
+				}
+				System.out.println(files.length + " files with extension " + extension + " successfully packed in archive \"" + archiveName + "\"!");
+			} catch (FileNotFoundException e) {
+				System.out.println(e.getMessage());
+			} catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+	}
+	
+	public static void unpack(String archiveName) {
+		byte[] buffer = new byte[1024];
+		String targetDirectory = ".";
+		try(ZipInputStream zis = new ZipInputStream(new FileInputStream(archiveName));) {
+			ZipEntry zEntry = zis.getNextEntry();
+			while (zEntry != null) {
+				String fileName = zEntry.getName();
+				File file = new File(targetDirectory, fileName);
+				try(FileOutputStream fos = new FileOutputStream(file);) {
+					int length;
+                    while ((length = zis.read(buffer)) > 0) {
+                    	fos.write(buffer, 0, length);
+                    }
+                    zis.closeEntry();
+                    zEntry = zis.getNextEntry();
+				}
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public static void main(String[] args) {
+		if (args[0].equals("-p")) {
+			pack(args[1], args[2]);
+		}
+		else if (args[0].equals("-u")) {
+			unpack(args[1]);
+		}
+		else {
+			System.out.println("Usage: ");
+			System.out.println("Pack: -p <extension> <archivename>");
+			System.out.println("Unpack: -u <archivename>");
+		}
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;b1&apos; in &apos;at.fhv.itb.lro3572.Backpack.main(...)&apos; to &apos;backpack&apos;&#x0D;&#x0A;- Original project: &apos;GamePlayer&apos;&#x0D;&#x0A;- Original element: &apos;at.fhv.itb.lro3572.Backpack.main(String[]).b1&apos;&#x0D;&#x0A;- Renamed element: &apos;b1&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;b1&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;at.fhv.itb.lro3572{Backpack.java[Backpack~main~\[QString;@b1!2017!2046!2026!2027!QBackpack;!0!false" name="backpack" references="true" stamp="1679930094326" version="1.0"/>
+</session>

@@ -1,0 +1,9 @@
+1683549476734	Rename type 'Product'
+1683552960336	Rename type 'ReservableProduct'
+1683552970686	Rename field '_products'
+1683553583445	Rename type 'Medium'
+1683553662005	Rename type 'ReservableMedium'
+1683566509493	Delete element
+1683567861911	Rename field '_lendingFee_Cents'
+1683708624024	Copy compilation unit
+1683714390338	Copy compilation unit

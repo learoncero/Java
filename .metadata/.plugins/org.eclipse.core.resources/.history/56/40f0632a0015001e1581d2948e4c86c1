@@ -1,0 +1,20 @@
+package Stoppuhr;
+
+public class StoppuhrAWT extends Frame {
+	
+	public StoppurhAWT() {
+		initFrame();
+	}
+	
+	private void initFrame() {
+		setTitle("Stoppuhr");
+		setSize(400, 400);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			windowClosing(WindowEvent e){
+				System.exit(0);
+			}
+		});
+	}
+}

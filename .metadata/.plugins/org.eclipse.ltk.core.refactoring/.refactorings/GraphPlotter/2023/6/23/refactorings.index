@@ -1,0 +1,10 @@
+1685980250866	Rename type 'Polynom'
+1685980474531	Rename type 'GUI'
+1686209296664	Rename type 'ViewAxis'
+1686209300280	Delete element
+1686212867147	Rename method 'drawGraph'
+1686216207979	Delete element
+1686380584709	Rename local variable 'width'
+1686380588859	Rename local variable 'height'
+1686384230937	Rename field '_polynomList'
+1686465214387	Rename local variable 'graphics2D'

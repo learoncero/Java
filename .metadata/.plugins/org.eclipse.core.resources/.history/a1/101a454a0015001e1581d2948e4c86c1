@@ -1,0 +1,42 @@
+package Stoppuhr;
+
+import java.awt.BorderLayout;
+import java.awt.*;
+import java.awt.Panel;
+
+public class StoppuhrAWT extends Frame {
+	
+	public StoppurhAWT() {
+		initFrame();
+		initPanel();
+	}
+	
+	private void initFrame() {
+		setTitle("Stoppuhr");
+		setSize(400, 400);
+		setLayout(new BorderLayout());
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			windowClosing(WindowEvent e){
+				System.exit(0);
+			}
+		});
+	}
+	
+	private void initPanel() {
+		// center
+		
+		// south
+		Panel southPanel = new Panel();
+		Button start = new Button("Start");
+		
+		
+		Button stop = new Button("Stop");
+		
+		
+		southPanel.add(start);
+		southPanel.add(stop);
+		add(southPanel, BorderLayout.SOUTH);
+	}
+}

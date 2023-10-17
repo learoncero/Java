@@ -1,0 +1,19 @@
+1683279418778	Rename type 'Student'
+1683279426005	Rename type 'ExternalPerson'
+1683279433294	Rename type 'Teacher'
+1683279627403	Delete element
+1683279670382	Rename package 'at.fhv.itb.lro3572'
+1683279697538	Move compilation units
+1683279733306	Move compilation unit
+1683286235642	Delete element
+1683286238380	Delete element
+1683287074355	Rename field '_borrowables'
+1683287102135	Rename field '_reservables'
+1683301861391	Rename field '_publisher'
+1683303091268	Move compilation units
+1683303094768	Delete element
+1683304568653	Rename local variable 'rp'
+1683365262013	Delete element
+1683365263856	Delete element
+1683446700184	Rename method 'addBorrower'
+1683450435437	Move compilation unit

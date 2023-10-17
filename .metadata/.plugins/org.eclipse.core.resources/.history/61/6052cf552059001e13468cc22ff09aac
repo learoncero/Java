@@ -1,0 +1,31 @@
+package CodeReview;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class CodeReview {
+	public static void main(String[] args) {
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("test"));) {
+			Person p = new Person("Hugo", 450000);
+			out.writeObject(p);
+		} catch (IOException  e) {
+			e.printStackTrace();
+		}
+		
+		try (ObjectInputStream inFile = new ObjectInputStream(new FileInputStream("test"));) {
+			Person p2 = (Person) inFile.readObject();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(p2);
+	}
+}

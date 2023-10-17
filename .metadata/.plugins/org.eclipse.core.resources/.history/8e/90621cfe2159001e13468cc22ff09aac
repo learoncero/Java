@@ -1,0 +1,244 @@
+package at.fhv.itb.lro3572;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+
+public class NewOrderClient extends Frame {
+	private static final long serialVersionUID = 1L;
+	
+	private Label _hamburgerLabel;
+	private Label _frenchFriesLabel;
+	private Label _cocaColaLabel;
+	private int _hamburgerCount;
+	private int _frenchFriesCount;
+	private int _cocaColaCount;
+	
+	public NewOrderClient() {
+		initFrame();
+		initPanel();
+		setVisible(true);
+	}
+	
+	private void initFrame() {
+		setTitle("New Order Client");
+		setSize(400, 400);
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				dispose();
+			}
+		});
+		
+		setLayout(new BorderLayout());
+	}
+	
+	private void initPanel() {
+		// north
+		Panel northPanel = new Panel();
+		northPanel.setBackground(Color.BLACK);
+		Label insertOrderLabel = new Label("Geben Sie ein, was Sie bestellen möchten");
+		insertOrderLabel.setFont(new Font("SANS_SERIF", Font.PLAIN, 14));
+		insertOrderLabel.setForeground(Color.WHITE);
+		northPanel.add(insertOrderLabel);
+		add(northPanel, BorderLayout.NORTH);
+		
+		// south
+		Button orderNow = new Button("Jetzt bestellen");
+		orderNow.setBackground(Color.ORANGE);
+		orderNow.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if ((_hamburgerCount > 0) || (_frenchFriesCount > 0) || (_cocaColaCount > 0)) {
+					List<String> orderDetails = new LinkedList<>();
+					if (_hamburgerLabel.getText().length() > 1) {
+						orderDetails.add(_hamburgerLabel.getText());
+					}
+					if (_frenchFriesLabel.getText().length() > 1) {
+						orderDetails.add(_frenchFriesLabel.getText());
+					}
+					if (_cocaColaLabel.getText().length() > 1) {
+						orderDetails.add(_cocaColaLabel.getText());
+					}
+					
+					sendOrder(orderDetails);
+					
+					reinitialiseCounters();
+					clearLabels();
+					
+					JOptionPane.showMessageDialog(NewOrderClient.this,
+							"Bestellung wurde erfolgreich gesendet.", "Bestellung erfolgreich",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					JOptionPane.showMessageDialog(NewOrderClient.this,
+							"Bestellung fehlgeschlagen. Fügen Sie zuerst Artikel hinzu.", "Bestellung fehlgeschlagen",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				
+			}
+		});
+		add(orderNow, BorderLayout.SOUTH);
+		
+		// center
+		Panel centerPanel = new Panel();
+		centerPanel.setLayout(new GridLayout(1, 2));
+		
+		Panel orderDetailPanel = new Panel(new GridLayout(3, 1));
+		_hamburgerLabel = new Label();
+		_frenchFriesLabel = new Label();
+		_cocaColaLabel = new Label();
+		orderDetailPanel.add(_hamburgerLabel);
+		orderDetailPanel.add(_frenchFriesLabel);
+		orderDetailPanel.add(_cocaColaLabel);
+		centerPanel.add(orderDetailPanel);
+		
+		Panel buttonPanel = new Panel(new GridLayout(3, 3));
+	
+		// Hamburger
+		Label hamburger = new Label("Hamburger");
+		buttonPanel.add(hamburger);
+		
+		Button removeHamburgerButton = new Button("-");
+		removeHamburgerButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (_hamburgerCount > 1) {
+					_hamburgerCount -= 1;
+					_hamburgerLabel.setText(getHamburgerTextString());
+				}
+				else {
+					_hamburgerCount = 0;
+					_hamburgerLabel.setText("");
+				}
+			}
+		});
+		buttonPanel.add(removeHamburgerButton);
+		
+		Button addHamburgerButton = new Button("+");
+		_hamburgerCount = 0;
+		addHamburgerButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_hamburgerCount += 1;
+				_hamburgerLabel.setText(getHamburgerTextString());
+			}
+		});
+		buttonPanel.add(addHamburgerButton);
+		
+		// French Fries
+		Label frenchFries = new Label("Pommes");
+		buttonPanel.add(frenchFries);
+		
+		Button addFrenchFriesButton = new Button("+");
+		_frenchFriesCount = 0;
+		addFrenchFriesButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_frenchFriesCount += 1;
+				_frenchFriesLabel.setText(getFrenchFriesTextString());
+			}
+		});
+		buttonPanel.add(addFrenchFriesButton);
+		
+		Button removeFrenchFriesButton = new Button("-");
+		removeFrenchFriesButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (_frenchFriesCount > 1) {
+					_frenchFriesCount -= 1;
+					_frenchFriesLabel.setText(getFrenchFriesTextString()); 
+				}
+				else {
+					_frenchFriesCount = 0;
+					_frenchFriesLabel.setText("");
+				}
+			}
+		});
+		buttonPanel.add(removeFrenchFriesButton);
+		
+		// Coca Cola
+		Label cocaCola = new Label("Coca Cola");
+		buttonPanel.add(cocaCola);
+		
+		Button addCocaColaButton = new Button("+");
+		addCocaColaButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_cocaColaCount += 1;
+				_cocaColaLabel.setText(getCocaColaTextString());
+			}
+		});
+		buttonPanel.add(addCocaColaButton);
+		
+		Button removeCocaColaButton = new Button("-");
+		removeCocaColaButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (_cocaColaCount > 1) {
+					_cocaColaCount -= 1;
+					_cocaColaLabel.setText(getCocaColaTextString()); 
+				}
+				else {
+					_cocaColaCount = 0;
+					_cocaColaLabel.setText("");
+				}
+			}
+		});
+		buttonPanel.add(removeCocaColaButton);
+		
+		centerPanel.add(buttonPanel);
+		add(centerPanel, BorderLayout.CENTER);
+	}
+	
+	
+	private String getHamburgerTextString() {
+		return "- " + _hamburgerCount +  "x Burger";
+	}
+	
+	private String getFrenchFriesTextString() {
+		return "- " + _frenchFriesCount +  "x Pommes";
+	}
+	
+	private String getCocaColaTextString() {
+		return "- " + _cocaColaCount +  "x Coca Cola";
+	}
+	
+	private void reinitialiseCounters() {
+		_hamburgerCount = 0;
+		_frenchFriesCount = 0;
+		_cocaColaCount = 0;
+	}
+	
+	private void clearLabels() {
+		_hamburgerLabel.setText("");
+		_frenchFriesLabel.setText("");
+		_cocaColaLabel.setText("");
+	}
+	
+	private void sendOrder(List<String> orderDetails) {
+        try (Socket socket = new Socket("localhost", 1234)) {
+            ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
+            Order order = new Order(orderDetails);
+            objectOut.writeObject(order);
+            objectOut.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static void main(String[] args) {
+		new NewOrderClient();
+	}
+}

@@ -1,0 +1,26 @@
+1683705496397	Rename field '_currentlyBorrowed'
+1683705521112	Rename field '_borrowerID'
+1683705575809	Rename field '_pastBorrowed'
+1683706620187	Rename type 'PrintableMedia'
+1683706679019	Rename type 'Printables'
+1683710198610	Delete element
+1683710224098	Rename type 'Person'
+1683714352168	Rename local variable 'l'
+1683717724361	Rename field '_lendings'
+1683717829865	Rename method 'getLendings'
+1683717837198	Rename method 'getReservations'
+1683721318379	Move compilation units
+1683721360706	Move compilation units
+1683721384616	Rename package 'Exceptions'
+1683721396624	Rename package 'Media'
+1683721491155	Copy package
+1683721518304	Delete element
+1683721553260	Move compilation units
+1683721709121	Rename local variable 'userRole'
+1683722380727	Rename local variable 'bookInformation'
+1683723273740	Rename local variable 'pastLending'
+1683741796316	Rename local variable 'bookInformation'
+1683741803407	Rename local variable 'CDinformation'
+1683741915001	Rename local variable 'bookInformation'
+1683742059727	Rename local variable 'bookInformation'
+1683742090976	Rename local variable 'bookInformation'

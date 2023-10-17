@@ -1,0 +1,58 @@
+package Stoppuhr;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Timer;
+
+public class StoppuhrAWT extends Frame {
+	private static final long serialVersionUID = 1L;
+
+	public StoppuhrAWT() {
+		initFrame();
+		initPanel();
+	}
+	
+	private void initFrame() {
+		setTitle("Stoppuhr");
+		setSize(350, 200);
+		setLayout(new BorderLayout());
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
+	}
+	
+	private void initPanel() {
+		// center
+		Panel timePanel = new Panel();
+		String startTime = "00:00";
+		Label timerLabel = new Label();
+		timerLabel.setText(startTime);
+		timePanel.add(timerLabel);	
+		
+		// south
+		Panel buttonPanel = new Panel();
+		Button start = new Button("Start");
+		start.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				timer.
+			}
+		});
+		
+		Button stop = new Button("Stop");
+		stop.setEnabled(false);
+		
+		buttonPanel.add(start);
+		buttonPanel.add(stop);
+		add(buttonPanel, BorderLayout.SOUTH);
+	}
+	
+	public static void main(String[] args) {
+		StoppuhrAWT stoppuhr = new StoppuhrAWT();
+		stoppuhr.setVisible(true);
+	}
+}

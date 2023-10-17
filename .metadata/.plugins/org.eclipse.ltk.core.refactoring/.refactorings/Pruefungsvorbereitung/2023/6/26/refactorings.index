@@ -1,0 +1,26 @@
+1687778138727	Rename package 'AWTDrawLine'
+1687778158337	Rename type 'DrawLine'
+1687780489541	Rename type 'LineDrawer'
+1687781232728	Rename package 'AWT.Draw.Line'
+1687781249145	Move compilation unit
+1687855632685	Rename compilation unit 'Foo.java'
+1687856308798	Delete element
+1687874586539	Rename type 'ReadWriteObject'
+1687874610676	Rename type 'ReadObject'
+1687874994804	Delete element
+1687875013629	Rename package 'ReadWriteObject'
+1687875267624	Rename field 'isReadOnly'
+1687875288527	Rename field 'name'
+1687880282990	Rename local variable 'southPanel'
+1687880287721	Rename local variable 'centerPanel'
+1687881269109	Rename type 'Stopwatch'
+1687881289232	Rename field 'timerLabel'
+1687881295761	Rename field 'stopButton'
+1687881298879	Rename field 'minutes'
+1687881303091	Rename field 'seconds'
+1687881305985	Rename field 'running'
+1687928726486	Rename compilation unit 'MousPositioner.java'
+1687932899592	Rename type 'CaseScrambler'
+1687973414274	Delete element
+1687973570337	Rename type 'ReverseIterator'
+1688017862974	Rename field '_index'

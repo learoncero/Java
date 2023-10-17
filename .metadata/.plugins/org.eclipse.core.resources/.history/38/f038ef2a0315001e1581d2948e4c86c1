@@ -1,0 +1,84 @@
+package Stoppuhr;
+
+import java.awt.*;
+import java.awt.event.*;
+
+public class StoppuhrAWT extends Frame {
+	private static final long serialVersionUID = 1L;
+	private Label _timerLabel;
+    private Button startButton, stopButton;
+    private int minutes, seconds;
+    private boolean running;
+
+    public StoppuhrAWT() {
+        setTitle("Stoppuhr");
+        setSize(300, 200);
+        setLayout(new BorderLayout());
+
+        _timerLabel = new Label("00:00", Label.CENTER);
+        _timerLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        add(_timerLabel, BorderLayout.CENTER);
+
+        startButton = new Button("Start");
+        startButton.addActionListener(new StartButtonListener());
+        add(startButton, BorderLayout.SOUTH);
+
+        stopButton = new Button("Stop");
+        stopButton.addActionListener(new StopButtonListener());
+        stopButton.setEnabled(false);
+        add(stopButton, BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    private class StartButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            running = true;
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            startTimer();
+        }
+    }
+
+    private class StopButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            running = false;
+            stopButton.setEnabled(false);
+            startButton.setEnabled(true);
+        }
+    }
+
+    private void startTimer() {
+        Thread timerThread = new Thread(() -> {
+            while (running) {
+                try {
+                    Thread.sleep(1000); // Pause für eine Sekunde
+                    incrementTime();
+                    updateTimerLabel();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        timerThread.start();
+    }
+
+    private void incrementTime() {
+        seconds++;
+        if (seconds >= 60) {
+            seconds = 0;
+            minutes++;
+        }
+    }
+
+    private void updateTimerLabel() {
+        String time = String.format("%02d:%02d", minutes, seconds);
+        _timerLabel.setText(time);
+    }
+
+    public static void main(String[] args) {
+        new StoppuhrAWT();
+    }
+}
